@@ -110,12 +110,16 @@ fn store_data(data: &Vec<Offer>) {
 }
 
 fn read_stored_data() -> Vec<Offer> {
-    let ifile = File::open(CACHE_PATH)
-        .expect("unable to open file");
+    let result = File::open(CACHE_PATH);
 
-    let offers: Vec<Offer> = serde_json::from_reader(ifile)
-        .expect("Error parsing JSON");
-    
+    let offers: Vec<Offer> = match result {
+        Ok(res) => {
+            println!("Offers found on {}!", CACHE_PATH);
+            serde_json::from_reader(res).expect("Error parsing JSON")
+        },
+        _ => Vec::new(),  
+    };
+
     offers
 }
 
@@ -125,7 +129,7 @@ fn main() {
     println!("Getting new offers...");
     let today_offers = get_offers();
 
-    println!("Loading previous offers...");
+    println!("Looking for stored offers...");
     let previous_offers = read_stored_data();
 
     let today_ids: HashSet<String> = 
@@ -162,10 +166,8 @@ fn main() {
         }
     }
 
-    println!("{:?}", new_ids);
-    println!("{:?}", removed_ids);
-
-    
+    println!("New Ids: {:?}", new_ids);
+    println!("Removed Ids: {:?}", removed_ids);
     
     println!("Storing new values...");
     store_data(&today_offers);
