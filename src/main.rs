@@ -110,17 +110,13 @@ fn store_data(data: &Vec<Offer>) {
 }
 
 fn read_stored_data() -> Vec<Offer> {
-    let result = File::open(CACHE_PATH);
-
-    let offers: Vec<Offer> = match result {
+    match File::open(CACHE_PATH) {
         Ok(res) => {
             println!("Offers found on {}!", CACHE_PATH);
             serde_json::from_reader(res).expect("Error parsing JSON")
         },
         _ => Vec::new(),  
-    };
-
-    offers
+    }
 }
 
 fn main() {
